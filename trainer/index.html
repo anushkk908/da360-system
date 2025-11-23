@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#dc2626">
+  <title>DA360 - Trainer Portal</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="https://da360.vercel.app/images/logo.svg">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f9fafb;
+      color: #111827;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      color: white;
+      padding: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 8px;
+      padding: 6px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .login-screen, .dashboard-screen {
+      display: none;
+    }
+
+    .login-screen.active {
+      display: block;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #374151;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .btn {
+      background: #dc2626;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: #b91c1c;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #dc2626;
+      border: 2px solid #dc2626;
+    }
+
+    .btn-secondary:hover {
+      background: #fef2f2;
+    }
+
+    .batch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .batch-card {
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .batch-card:hover {
+      border-color: #dc2626;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
+    }
+
+    .batch-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #111827;
+      margin-bottom: 0.75rem;
+    }
+
+    .batch-info {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+
+    .student-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    .student-table th,
+    .student-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .student-table th {
+      background: #f9fafb;
+      font-weight: 600;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .status-present {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .module-list {
+      margin-top: 1rem;
+    }
+
+    .module-item {
+      padding: 1rem;
+      background: #f9fafb;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .module-name {
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .module-status {
+      font-size: 0.875rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .alert {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div class="login-screen active" id="loginScreen">
+    <div class="header">
+      <div class="logo-container">
+        <img src="https://da360.vercel.app/images/logo.svg" alt="DA360" class="logo">
+        <div style="font-size: 1.5rem; font-weight: bold;">DA360 Trainer</div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="card" style="max-width: 400px; margin: 3rem auto;">
+        <h2 style="margin-bottom: 1.5rem; color: #dc2626;">Trainer Login</h2>
+        <div id="loginAlert"></div>
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="trainerID">Trainer ID</label>
+            <input type="text" id="trainerID" placeholder="Enter your Trainer ID" required>
+          </div>
+          <button type="submit" class="btn" style="width: 100%;">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Screen -->
+  <div class="dashboard-screen" id="dashboardScreen">
+    <div class="header">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="logo-container">
+          <img src="https://da360.vercel.app/images/logo.svg" alt="DA360" class="logo">
+          <div style="font-size: 1.5rem; font-weight: bold;">DA360 Trainer</div>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <span id="trainerName"></span>
+          <button class="btn-secondary" onclick="logout()" style="padding: 0.5rem 1rem;">Logout</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2>Your Batches</h2>
+        <button class="btn" onclick="showMarkAbsentModal()">Mark Myself Absent</button>
+      </div>
+
+      <div class="batch-grid" id="batchGrid">
+        <!-- Batches will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Batch Detail Modal -->
+  <div class="modal" id="batchModal">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 id="modalBatchName">Batch Details</h2>
+        <button onclick="closeBatchModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">✕</button>
+      </div>
+      
+      <h3 style="margin-top: 1.5rem;">Students</h3>
+      <table class="student-table" id="studentTable">
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Name</th>
+            <th>Today's Status</th>
+          </tr>
+        </thead>
+        <tbody id="studentTableBody">
+        </tbody>
+      </table>
+
+      <h3 style="margin-top: 2rem;">Modules</h3>
+      <div class="module-list" id="moduleList">
+      </div>
+    </div>
+  </div>
+
+  <!-- Mark Absent Modal -->
+  <div class="modal" id="absentModal">
+    <div class="modal-content">
+      <h2>Mark Yourself Absent</h2>
+      <form id="absentForm">
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="absentDate" required>
+        </div>
+        <div class="form-group">
+          <label>Reason</label>
+          <textarea id="absentReason" required></textarea>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn">Submit</button>
+          <button type="button" class="btn btn-secondary" onclick="closeAbsentModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Module Action Modal -->
+  <div class="modal" id="moduleModal">
+    <div class="modal-content">
+      <h2 id="moduleActionTitle">Module Action</h2>
+      <form id="moduleForm">
+        <div id="moduleFormContent"></div>
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+          <button type="submit" class="btn">Submit</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModuleModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbw4pJXkrMKl_bAPC6DObaaKOuJzD8pdKcVJcx8FwYznqcnT-wO7cakZNuD9u0cAW3A/exec';
+    let currentUser = null;
+    let currentBatchID = null;
+    let currentModuleID = null;
+    let currentModuleAction = null;
+
+    async function apiCall(action, params) {
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action, ...params })
+        });
+        return await response.json();
+      } catch (error) {
+        return { success: false, message: 'Network error' };
+      }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const trainerID = document.getElementById('trainerID').value.trim();
+
+      const result = await apiCall('loginTrainer', { trainerID });
+
+      if (result.success) {
+        currentUser = result.data;
+        localStorage.setItem('da360_trainer', JSON.stringify(currentUser));
+        showDashboard();
+        loadDashboard();
+      } else {
+        document.getElementById('loginAlert').innerHTML = 
+          `<div class="alert">${result.message}</div>`;
+      }
+    });
+
+    window.addEventListener('load', () => {
+      const saved = localStorage.getItem('da360_trainer');
+      if (saved) {
+        currentUser = JSON.parse(saved);
+        showDashboard();
+        loadDashboard();
+      }
+    });
+
+    function showDashboard() {
+      document.getElementById('loginScreen').classList.remove('active');
+      document.getElementById('dashboardScreen').style.display = 'block';
+      document.getElementById('trainerName').textContent = currentUser.name;
+    }
+
+    function logout() {
+      localStorage.removeItem('da360_trainer');
+      location.reload();
+    }
+
+    async function loadDashboard() {
+      const result = await apiCall('getTrainerDashboard', {
+        trainerID: currentUser.trainerID
+      });
+
+      if (result.success) {
+        const grid = document.getElementById('batchGrid');
+        grid.innerHTML = '';
+
+        result.data.batches.forEach(batch => {
+          const card = document.createElement('div');
+          card.className = 'batch-card';
+          card.onclick = () => openBatchDetail(batch.batchID);
+          card.innerHTML = `
+            <div class="batch-title">${batch.name}</div>
+            <div style="color: #6b7280; margin-bottom: 0.5rem;">${batch.batchID}</div>
+            <div class="batch-info">
+              <span>📍 ${batch.classroom}</span>
+              <span>👥 ${batch.studentCount} students</span>
+            </div>
+            <div class="batch-info">
+              <span>🕐 ${batch.timing}</span>
+              <span>📡 ${batch.mode}</span>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      }
+    }
+
+    async function openBatchDetail(batchID) {
+      currentBatchID = batchID;
+      const result = await apiCall('getTrainerBatches', {
+        trainerID: currentUser.trainerID,
+        batchID: batchID
+      });
+
+      if (result.success) {
+        const tbody = document.getElementById('studentTableBody');
+        tbody.innerHTML = '';
+
+        result.data.students.forEach(student => {
+          const row = tbody.insertRow();
+          let statusClass = 'status-pending';
+          if (student.todayStatus === 'PRESENT') statusClass = 'status-present';
+          row.innerHTML = `
+            <td>${student.studentID}</td>
+            <td>${student.name}</td>
+            <td><span class="status-badge ${statusClass}">${student.todayStatus}</span></td>
+          `;
+        });
+
+        const moduleList = document.getElementById('moduleList');
+        moduleList.innerHTML = '';
+
+        result.data.modules.forEach(module => {
+          const div = document.createElement('div');
+          div.className = 'module-item';
+          div.innerHTML = `
+            <div>
+              <div class="module-name">${module.moduleName}</div>
+              <div style="font-size: 0.875rem; color: #6b7280;">Tentative: ${module.tentativeDate || 'Not set'}</div>
+            </div>
+            <div>
+              <span class="module-status" style="background: ${getStatusColor(module.status)};">${module.status}</span>
+              ${module.status !== 'COMPLETED' ? 
+                `<button class="btn" style="margin-left: 0.5rem; padding: 0.5rem 1rem;" onclick="showModuleAction('${module.moduleID}', '${module.status}')">Action</button>` : ''}
+            </div>
+          `;
+          moduleList.appendChild(div);
+        });
+
+        document.getElementById('batchModal').classList.add('active');
+      }
+    }
+
+    function getStatusColor(status) {
+      if (status === 'COMPLETED') return '#d1fae5';
+      if (status === 'IN_PROGRESS') return '#dbeafe';
+      return '#fef3c7';
+    }
+
+    function closeBatchModal() {
+      document.getElementById('batchModal').classList.remove('active');
+    }
+
+    function showMarkAbsentModal() {
+      document.getElementById('absentDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('absentModal').classList.add('active');
+    }
+
+    function closeAbsentModal() {
+      document.getElementById('absentModal').classList.remove('active');
+    }
+
+    document.getElementById('absentForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const result = await apiCall('markTrainerAbsent', {
+        trainerID: currentUser.trainerID,
+        date: document.getElementById('absentDate').value,
+        remarks: document.getElementById('absentReason').value
+      });
+
+      if (result.success) {
+        alert('Marked as absent. Admin has been notified.');
+        closeAbsentModal();
+      } else {
+        alert('Error: ' + result.message);
+      }
+    });
+
+    function showModuleAction(moduleID, currentStatus) {
+      currentModuleID = moduleID;
+      const modal = document.getElementById('moduleModal');
+      const content = document.getElementById('moduleFormContent');
+
+      if (currentStatus === 'PENDING') {
+        currentModuleAction = 'start';
+        document.getElementById('moduleActionTitle').textContent = 'Start Module';
+        content.innerHTML = '<p>Mark this module as IN_PROGRESS?</p>';
+      } else if (currentStatus === 'IN_PROGRESS') {
+        currentModuleAction = 'complete';
+        document.getElementById('moduleActionTitle').textContent = 'Complete Module';
+        content.innerHTML = `
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea id="moduleNotes" placeholder="Add completion notes..."></textarea>
+          </div>
+        `;
+      }
+
+      modal.classList.add('active');
+    }
+
+    function closeModuleModal() {
+      document.getElementById('moduleModal').classList.remove('active');
+    }
+
+    document.getElementById('moduleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const result = await apiCall('markModuleCompleted', {
+        moduleID: currentModuleID,
+        trainerID: currentUser.trainerID,
+        notes: document.getElementById('moduleNotes')?.value || ''
+      });
+
+      if (result.success) {
+        alert('Module updated successfully!');
+        closeModuleModal();
+        openBatchDetail(currentBatchID);
+      } else {
+        alert('Error: ' + result.message);
+      }
+    });
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+  </script>
+</body>
+</html>

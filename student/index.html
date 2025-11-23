@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#dc2626">
+  <title>DA360 - Student Portal</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="https://da360.vercel.app/images/logo.svg">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f9fafb;
+      color: #111827;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      color: white;
+      padding: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 8px;
+      padding: 6px;
+    }
+
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .login-screen, .dashboard-screen {
+      display: none;
+    }
+
+    .login-screen.active, .dashboard-screen.active {
+      display: block;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #374151;
+    }
+
+    input[type="text"], input[type="password"], input[type="number"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+
+    .btn {
+      background: #dc2626;
+      color: white;
+      padding: 0.875rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: #b91c1c;
+    }
+
+    .btn:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #dc2626;
+      border: 2px solid #dc2626;
+    }
+
+    .btn-secondary:hover {
+      background: #fef2f2;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.25rem;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #dc2626;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      font-weight: 500;
+      color: #6b7280;
+    }
+
+    .info-value {
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .attendance-code {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      margin: 1.5rem 0;
+    }
+
+    .code-display {
+      font-size: 3rem;
+      font-weight: bold;
+      letter-spacing: 0.5rem;
+      font-family: 'Courier New', monospace;
+      margin: 1rem 0;
+    }
+
+    .code-label {
+      font-size: 0.875rem;
+      opacity: 0.9;
+    }
+
+    .notification-badge {
+      background: #dc2626;
+      color: white;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 12px;
+      margin-left: 0.5rem;
+    }
+
+    .notification-item {
+      padding: 1rem;
+      border-bottom: 1px solid #e5e7eb;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .notification-item:hover {
+      background: #f9fafb;
+    }
+
+    .notification-item.unread {
+      background: #fef2f2;
+    }
+
+    .notification-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .notification-time {
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .tab {
+      padding: 0.75rem 1.5rem;
+      background: none;
+      border: none;
+      color: #6b7280;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      color: #dc2626;
+      border-bottom-color: #dc2626;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .attendance-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .attendance-table th,
+    .attendance-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .attendance-table th {
+      background: #f9fafb;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .status-present {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-absent {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status-half {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .alert {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .alert-error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .alert-success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .alert-info {
+      background: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #bfdbfe;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: #6b7280;
+    }
+
+    .spinner {
+      border: 3px solid #f3f4f6;
+      border-top: 3px solid #dc2626;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .punch-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .punch-status {
+      padding: 1rem;
+      background: #f9fafb;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .punch-time {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #dc2626;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .code-display {
+        font-size: 2rem;
+      }
+
+      .attendance-table {
+        font-size: 0.875rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div class="login-screen active" id="loginScreen">
+    <div class="header">
+      <div class="logo-container">
+        <img src="https://da360.vercel.app/images/logo.svg" alt="DA360" class="logo">
+        <div class="logo-text">DA360</div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="card" style="max-width: 400px; margin: 3rem auto;">
+        <h2 style="margin-bottom: 1.5rem; color: #dc2626;">Student Login</h2>
+        <div id="loginAlert"></div>
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="studentID">Student ID</label>
+            <input type="text" id="studentID" placeholder="Enter your Student ID" required>
+          </div>
+          <button type="submit" class="btn" id="loginBtn">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Screen -->
+  <div class="dashboard-screen" id="dashboardScreen">
+    <div class="header">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="logo-container">
+          <img src="https://da360.vercel.app/images/logo.svg" alt="DA360" class="logo">
+          <div class="logo-text">DA360</div>
+        </div>
+        <button class="btn-secondary" onclick="logout()" style="width: auto; padding: 0.5rem 1rem;">Logout</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('dashboard')">Dashboard</button>
+        <button class="tab" onclick="switchTab('attendance')">Attendance</button>
+        <button class="tab" onclick="switchTab('notifications')">
+          Notifications
+          <span class="notification-badge" id="notifCount" style="display: none;">0</span>
+        </button>
+      </div>
+
+      <!-- Dashboard Tab -->
+      <div class="tab-content active" id="dashboardTab">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="attendancePercent">0%</div>
+            <div class="stat-label">Attendance</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="currentModule">-</div>
+            <div class="stat-label">Current Module</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1rem;">Your Information</h3>
+          <div class="info-row">
+            <span class="info-label">Name</span>
+            <span class="info-value" id="studentName">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Student ID</span>
+            <span class="info-value" id="displayStudentID">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Batch</span>
+            <span class="info-value" id="batchName">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Trainer</span>
+            <span class="info-value" id="trainerName">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Classroom</span>
+            <span class="info-value" id="classroomName">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Timing</span>
+            <span class="info-value" id="batchTiming">-</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1rem;">Today's Attendance</h3>
+          <div id="attendanceAlert"></div>
+          
+          <div class="attendance-code" id="attendanceCodeSection" style="display: none;">
+            <div class="code-label">Your Attendance Code</div>
+            <div class="code-display" id="attendanceCode">----</div>
+            <div class="code-label">Show this code to mark attendance</div>
+          </div>
+
+          <div class="punch-section">
+            <div class="punch-status" id="punchStatus">
+              <div style="color: #6b7280; margin-bottom: 0.5rem;">Status: Not Marked</div>
+            </div>
+            
+            <button class="btn" id="getCodeBtn" onclick="getAttendanceCode()">Get Attendance Code</button>
+            <button class="btn" id="punchInBtn" onclick="punchIn()" style="display: none;">Punch In</button>
+            <button class="btn btn-secondary" id="punchOutBtn" onclick="punchOut()" style="display: none;">Punch Out</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attendance Tab -->
+      <div class="tab-content" id="attendanceTab">
+        <div class="card">
+          <h3 style="margin-bottom: 1rem;">Attendance Records</h3>
+          <div id="attendanceLoading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading attendance records...</p>
+          </div>
+          <div id="attendanceRecords" style="display: none;">
+            <table class="attendance-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Punch In</th>
+                  <th>Punch Out</th>
+                  <th>Duration</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="attendanceTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications Tab -->
+      <div class="tab-content" id="notificationsTab">
+        <div class="card">
+          <h3 style="margin-bottom: 1rem;">Notifications</h3>
+          <div id="notificationsList">
+            <div class="loading">
+              <div class="spinner"></div>
+              <p>Loading notifications...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    const API_URL = 'https://script.google.com/macros/s/AKfycbw4pJXkrMKl_bAPC6DObaaKOuJzD8pdKcVJcx8FwYznqcnT-wO7cakZNuD9u0cAW3A/exec'; // Replace with your deployed Web App URL
+    let currentUser = null;
+    let punchInTime = null;
+
+    // Generate device fingerprint
+    function getDeviceFingerprint() {
+      const nav = navigator;
+      const screen = window.screen;
+      const fingerprint = [
+        nav.userAgent,
+        nav.language,
+        screen.colorDepth,
+        screen.width,
+        screen.height,
+        new Date().getTimezoneOffset(),
+        !!window.sessionStorage,
+        !!window.localStorage
+      ].join('|');
+      return fingerprint;
+    }
+
+    // API Call Function
+    async function apiCall(action, params) {
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action, ...params })
+        });
+        return await response.json();
+      } catch (error) {
+        console.error('API Error:', error);
+        return { success: false, message: 'Network error. Please check your connection.' };
+      }
+    }
+
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const studentID = document.getElementById('studentID').value.trim();
+      const loginBtn = document.getElementById('loginBtn');
+      const alertDiv = document.getElementById('loginAlert');
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Logging in...';
+
+      const result = await apiCall('loginStudent', {
+        studentID: studentID,
+        deviceInfo: getDeviceFingerprint()
+      });
+
+      if (result.success) {
+        currentUser = result.data;
+        localStorage.setItem('da360_student', JSON.stringify(currentUser));
+        showDashboard();
+        loadDashboard();
+      } else {
+        alertDiv.innerHTML = `<div class="alert alert-error">${result.message}</div>`;
+      }
+
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Login';
+    });
+
+    // Check for saved session
+    window.addEventListener('load', () => {
+      const saved = localStorage.getItem('da360_student');
+      if (saved) {
+        currentUser = JSON.parse(saved);
+        showDashboard();
+        loadDashboard();
+      }
+    });
+
+    function showDashboard() {
+      document.getElementById('loginScreen').classList.remove('active');
+      document.getElementById('dashboardScreen').classList.add('active');
+    }
+
+    function logout() {
+      localStorage.removeItem('da360_student');
+      currentUser = null;
+      document.getElementById('dashboardScreen').classList.remove('active');
+      document.getElementById('loginScreen').classList.add('active');
+      document.getElementById('loginForm').reset();
+    }
+
+    async function loadDashboard() {
+      const result = await apiCall('getStudentDashboard', {
+        studentID: currentUser.studentID
+      });
+
+      if (result.success) {
+        const data = result.data;
+        document.getElementById('studentName').textContent = data.student.name;
+        document.getElementById('displayStudentID').textContent = data.student.studentID;
+        document.getElementById('batchName').textContent = data.batch?.name || '-';
+        document.getElementById('trainerName').textContent = data.trainerName || '-';
+        document.getElementById('classroomName').textContent = data.classroomName || '-';
+        document.getElementById('batchTiming').textContent = data.timing || '-';
+        document.getElementById('attendancePercent').textContent = data.attendancePercentage + '%';
+        document.getElementById('currentModule').textContent = data.currentModule || 'None';
+
+        loadNotifications();
+      }
+    }
+
+    async function getAttendanceCode() {
+      const result = await apiCall('getAttendanceCode', {
+        studentID: currentUser.studentID
+      });
+
+      if (result.success) {
+        document.getElementById('attendanceCode').textContent = result.data.code;
+        document.getElementById('attendanceCodeSection').style.display = 'block';
+        document.getElementById('getCodeBtn').style.display = 'none';
+        document.getElementById('punchInBtn').style.display = 'block';
+      }
+    }
+
+    async function punchIn() {
+      const code = document.getElementById('attendanceCode').textContent;
+      const alertDiv = document.getElementById('attendanceAlert');
+
+      // Get geolocation
+      if (!navigator.geolocation) {
+        alertDiv.innerHTML = '<div class="alert alert-error">Geolocation is not supported</div>';
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const result = await apiCall('punchIn', {
+          studentID: currentUser.studentID,
+          code: code,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          deviceInfo: getDeviceFingerprint()
+        });
+
+        if (result.success) {
+          punchInTime = result.data.punchInTime;
+          alertDiv.innerHTML = '<div class="alert alert-success">Punch in successful!</div>';
+          document.getElementById('punchStatus').innerHTML = `
+            <div style="color: #065f46; margin-bottom: 0.5rem;">Status: Punched In</div>
+            <div class="punch-time">${punchInTime}</div>
+          `;
+          document.getElementById('punchInBtn').style.display = 'none';
+          document.getElementById('punchOutBtn').style.display = 'block';
+        } else {
+          alertDiv.innerHTML = `<div class="alert alert-error">${result.message}</div>`;
+        }
+      }, (error) => {
+        alertDiv.innerHTML = '<div class="alert alert-error">Unable to get location. Please enable location services.</div>';
+      });
+    }
+
+    async function punchOut() {
+      const alertDiv = document.getElementById('attendanceAlert');
+      const result = await apiCall('punchOut', {
+        studentID: currentUser.studentID
+      });
+
+      if (result.success) {
+        alertDiv.innerHTML = '<div class="alert alert-success">Punch out successful!</div>';
+        document.getElementById('punchStatus').innerHTML = `
+          <div style="color: #065f46; margin-bottom: 0.5rem;">Status: ${result.data.status}</div>
+          <div class="punch-time">${result.data.punchOutTime}</div>
+          <div style="color: #6b7280; font-size: 0.875rem;">Duration: ${result.data.duration} minutes</div>
+        `;
+        document.getElementById('punchOutBtn').style.display = 'none';
+      } else {
+        alertDiv.innerHTML = `<div class="alert alert-error">${result.message}</div>`;
+      }
+    }
+
+    async function loadAttendanceRecords() {
+      document.getElementById('attendanceLoading').style.display = 'block';
+      document.getElementById('attendanceRecords').style.display = 'none';
+
+      const result = await apiCall('getStudentAttendance', {
+        studentID: currentUser.studentID
+      });
+
+      if (result.success) {
+        const tbody = document.getElementById('attendanceTableBody');
+        tbody.innerHTML = '';
+
+        result.data.records.forEach(record => {
+          const row = tbody.insertRow();
+          row.innerHTML = `
+            <td>${record.date}</td>
+            <td>${record.punchIn || '-'}</td>
+            <td>${record.punchOut || '-'}</td>
+            <td>${record.duration || 0} min</td>
+            <td><span class="status-badge status-${record.status.toLowerCase().replace('_', '-')}">${record.status}</span></td>
+          `;
+        });
+
+        document.getElementById('attendanceLoading').style.display = 'none';
+        document.getElementById('attendanceRecords').style.display = 'block';
+      }
+    }
+
+    async function loadNotifications() {
+      const result = await apiCall('getNotifications', {
+        email: currentUser.email,
+        recipientType: 'STUDENT'
+      });
+
+      if (result.success) {
+        const notifList = document.getElementById('notificationsList');
+        notifList.innerHTML = '';
+
+        const unread = result.data.notifications.filter(n => n.readStatus === 'UNREAD').length;
+        const badge = document.getElementById('notifCount');
+        if (unread > 0) {
+          badge.textContent = unread;
+          badge.style.display = 'inline-block';
+        } else {
+          badge.style.display = 'none';
+        }
+
+        if (result.data.notifications.length === 0) {
+          notifList.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">No notifications</p>';
+        } else {
+          result.data.notifications.forEach(notif => {
+            const div = document.createElement('div');
+            div.className = 'notification-item' + (notif.readStatus === 'UNREAD' ? ' unread' : '');
+            div.innerHTML = `
+              <div class="notification-title">${notif.subject}</div>
+              <div>${notif.body}</div>
+              <div class="notification-time">${new Date(notif.timestamp).toLocaleString()}</div>
+            `;
+            div.onclick = () => markNotificationRead(notif.notificationID, div);
+            notifList.appendChild(div);
+          });
+        }
+      }
+    }
+
+    async function markNotificationRead(notificationID, element) {
+      element.classList.remove('unread');
+      await apiCall('markNotificationRead', { notificationID });
+      loadNotifications();
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+
+      event.target.classList.add('active');
+      document.getElementById(tabName + 'Tab').classList.add('active');
+
+      if (tabName === 'attendance') {
+        loadAttendanceRecords();
+      } else if (tabName === 'notifications') {
+        loadNotifications();
+      }
+    }
+
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service Worker registered'))
+        .catch(err => console.log('Service Worker registration failed'));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,2445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#dc2626">
+  <title>DA360 - Admin Portal</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="https://da360.vercel.app/images/logo.svg">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f9fafb;
+      color: #111827;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      color: white;
+      padding: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 8px;
+      padding: 6px;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 73px;
+      bottom: 0;
+      width: 250px;
+      background: white;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+      overflow-y: auto;
+      z-index: 50;
+    }
+
+    .main-content {
+      margin-left: 250px;
+      padding: 1.5rem;
+    }
+
+    .nav-item {
+      padding: 0.875rem 1.25rem;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all 0.2s;
+      font-weight: 500;
+      color: #374151;
+    }
+
+    .nav-item:hover {
+      background: #f9fafb;
+      color: #dc2626;
+    }
+
+    .nav-item.active {
+      background: #fef2f2;
+      color: #dc2626;
+      border-left-color: #dc2626;
+    }
+
+    .nav-section {
+      padding: 1rem 1.25rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #9ca3af;
+      letter-spacing: 0.05em;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #111827;
+    }
+
+    .btn {
+      background: #dc2626;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn:hover {
+      background: #b91c1c;
+    }
+
+    .btn:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #dc2626;
+      border: 2px solid #dc2626;
+    }
+
+    .btn-secondary:hover {
+      background: #fef2f2;
+    }
+
+    .btn-small {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    .btn-danger {
+      background: #991b1b;
+    }
+
+    .btn-success {
+      background: #059669;
+    }
+
+    .btn-success:hover {
+      background: #047857;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 0.875rem;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    th {
+      background: #f9fafb;
+      font-weight: 600;
+      color: #374151;
+      position: sticky;
+      top: 0;
+    }
+
+    tr:hover {
+      background: #f9fafb;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .badge-active {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .badge-inactive {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .badge-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge-completed {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      overflow-y: auto;
+      padding: 2rem;
+    }
+
+    .modal.active {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #111827;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #6b7280;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+    }
+
+    .close-btn:hover {
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #374151;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      background: white;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active {
+      background: #dc2626;
+      color: white;
+      border-color: #dc2626;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #dc2626;
+    }
+
+    .stat-label {
+      color: #6b7280;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    .alert {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .alert-success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .alert-error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .alert-info {
+      background: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #bfdbfe;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #6b7280;
+    }
+
+    .spinner {
+      border: 3px solid #f3f4f6;
+      border-top: 3px solid #dc2626;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .icon-btn {
+      padding: 0.5rem;
+      background: none;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: #f9fafb;
+      border-color: #dc2626;
+      color: #dc2626;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #6b7280;
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-250px);
+        transition: transform 0.3s;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .login-screen {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .login-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .login-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-width: 450px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div class="login-screen" id="loginScreen">
+    <div class="header">
+      <div class="logo-container">
+        <img src="https://da360.vercel.app/images/logo.svg" alt="DA360" class="logo">
+        <div style="font-size: 1.5rem; font-weight: bold;">DA360 Admin</div>
+      </div>
+    </div>
+    <div class="login-container">
+      <div class="login-card">
+        <h2 style="margin-bottom: 0.5rem; color: #dc2626;">Admin Login</h2>
+        <p style="color: #6b7280; margin-bottom: 2rem;">Program Manager Portal</p>
+        <div id="loginAlert"></div>
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="adminKey">Admin Secret Key</label>
+            <input type="password" id="adminKey" placeholder="Enter admin secret key" required>
+          </div>
+          <div class="form-group">
+            <label for="adminEmail">Admin Email</label>
+            <input type="email" id="adminEmail" placeholder="admin@da360.com" required>
+          </div>
+          <button type="submit" class="btn" style="width: 100%;">Access Admin Portal</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Screen -->
+  <div id="dashboardScreen" style="display: none;">
+    <div class="header">
+      <div class="header-content">
+        <div class="logo-container">
+          <img src="https://da360.vercel.app/images/logo.svg" alt="DA360" class="logo">
+          <div style="font-size: 1.5rem; font-weight: bold;">DA360 Admin</div>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <span id="adminName" style="color: white;"></span>
+          <button class="btn-secondary btn-small" onclick="logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="nav-section">Overview</div>
+      <div class="nav-item active" onclick="showSection('dashboard')">📊 Dashboard</div>
+      
+      <div class="nav-section">Management</div>
+      <div class="nav-item" onclick="showSection('students')">👥 Students</div>
+      <div class="nav-item" onclick="showSection('trainers')">👨‍🏫 Trainers</div>
+      <div class="nav-item" onclick="showSection('batches')">📚 Batches</div>
+      <div class="nav-item" onclick="showSection('classrooms')">🏫 Classrooms</div>
+      <div class="nav-item" onclick="showSection('modules')">📖 Modules</div>
+      <div class="nav-item" onclick="showSection('timings')">🕐 Timing Slots</div>
+      
+      <div class="nav-section">Operations</div>
+      <div class="nav-item" onclick="showSection('attendance')">✓ Attendance</div>
+      <div class="nav-item" onclick="showSection('notifications')">🔔 Notifications</div>
+      <div class="nav-item" onclick="showSection('audit')">📋 Audit Logs</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Dashboard Section -->
+      <div class="section active" id="dashboard">
+        <h1 style="margin-bottom: 1.5rem;">Dashboard Overview</h1>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="totalStudents">0</div>
+            <div class="stat-label">Total Students</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="activeBatches">0</div>
+            <div class="stat-label">Active Batches</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="totalTrainers">0</div>
+            <div class="stat-label">Trainers</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="completedModules">0</div>
+            <div class="stat-label">Modules Completed</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Active Batches</h3>
+          </div>
+          <div class="table-container">
+            <table id="dashboardBatchesTable">
+              <thead>
+                <tr>
+                  <th>Batch ID</th>
+                  <th>Name</th>
+                  <th>Trainer</th>
+                  <th>Students</th>
+                  <th>Modules</th>
+                  <th>Progress</th>
+                </tr>
+              </thead>
+              <tbody id="dashboardBatchesBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Students Section -->
+      <div class="section" id="students">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Students Management</h2>
+            <button class="btn" onclick="openAddStudentModal()">+ Add Student</button>
+          </div>
+          
+          <div class="search-bar">
+            <input type="text" class="search-input" id="studentSearch" placeholder="Search students..." onkeyup="filterStudents()">
+            <select id="studentBatchFilter" onchange="filterStudents()" style="width: auto;">
+              <option value="">All Batches</option>
+            </select>
+          </div>
+
+          <div id="studentsLoading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading students...</p>
+          </div>
+
+          <div class="table-container" id="studentsTable" style="display: none;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Student ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Batch</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="studentsTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trainers Section -->
+      <div class="section" id="trainers">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Trainers Management</h2>
+            <button class="btn" onclick="openAddTrainerModal()">+ Add Trainer</button>
+          </div>
+
+          <div id="trainersLoading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading trainers...</p>
+          </div>
+
+          <div class="table-container" id="trainersTable" style="display: none;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Trainer ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="trainersTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Batches Section -->
+      <div class="section" id="batches">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Batch Management</h2>
+            <div style="display: flex; gap: 0.75rem;">
+              <button class="btn btn-secondary" onclick="openMergeBatchModal()">Merge Batches</button>
+              <button class="btn btn-secondary" onclick="openSplitBatchModal()">Split Batch</button>
+              <button class="btn" onclick="openAddBatchModal()">+ Create Batch</button>
+            </div>
+          </div>
+
+          <div id="batchesLoading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading batches...</p>
+          </div>
+
+          <div class="table-container" id="batchesTable" style="display: none;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Batch ID</th>
+                  <th>Name</th>
+                  <th>Trainer</th>
+                  <th>Classroom</th>
+                  <th>Mode</th>
+                  <th>Students</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="batchesTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Classrooms Section -->
+      <div class="section" id="classrooms">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Classroom Management</h2>
+            <button class="btn" onclick="openAddClassroomModal()">+ Add Classroom</button>
+          </div>
+
+          <div id="classroomsLoading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading classrooms...</p>
+          </div>
+
+          <div class="table-container" id="classroomsTable" style="display: none;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Classroom ID</th>
+                  <th>Location Name</th>
+                  <th>Latitude</th>
+                  <th>Longitude</th>
+                  <th>Radius (m)</th>
+                  <th>Active</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="classroomsTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modules Section -->
+      <div class="section" id="modules">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Module Management</h2>
+            <button class="btn" onclick="openAddModuleModal()">+ Add Module</button>
+          </div>
+
+          <div class="filter-group" style="margin-bottom: 1.5rem;">
+            <button class="filter-btn active" onclick="filterModules('ALL')">All</button>
+            <button class="filter-btn" onclick="filterModules('PENDING')">Pending</button>
+            <button class="filter-btn" onclick="filterModules('IN_PROGRESS')">In Progress</button>
+            <button class="filter-btn" onclick="filterModules('COMPLETED')">Completed</button>
+          </div>
+
+          <div id="modulesLoading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading modules...</p>
+          </div>
+
+          <div class="table-container" id="modulesTable" style="display: none;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Module ID</th>
+                  <th>Batch</th>
+                  <th>Module Name</th>
+                  <th>Status</th>
+                  <th>Tentative Date</th>
+                  <th>Actual Date</th>
+                  <th>Trainer</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="modulesTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timing Slots Section -->
+      <div class="section" id="timings">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Timing Slots</h2>
+            <button class="btn" onclick="openAddTimingModal()">+ Add Timing Slot</button>
+          </div>
+
+          <div id="timingsLoading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading timing slots...</p>
+          </div>
+
+          <div class="table-container" id="timingsTable" style="display: none;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Slot ID</th>
+                  <th>Label</th>
+                  <th>Start Time</th>
+                  <th>End Time</th>
+                  <th>Mode</th>
+                  <th>Created By</th>
+                </tr>
+              </thead>
+              <tbody id="timingsTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attendance Section -->
+      <div class="section" id="attendance">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Attendance Reports</h2>
+            <button class="btn" onclick="exportAttendance()">📥 Export</button>
+          </div>
+
+          <div class="form-row" style="margin-bottom: 1.5rem;">
+            <select id="attendanceBatchFilter">
+              <option value="">All Batches</option>
+            </select>
+            <input type="date" id="attendanceDateFilter">
+            <button class="btn btn-secondary" onclick="loadAttendanceReport()">Generate Report</button>
+          </div>
+
+          <div id="attendanceLoading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading attendance...</p>
+          </div>
+
+          <div class="table-container" id="attendanceTable" style="display: none;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Student ID</th>
+                  <th>Batch</th>
+                  <th>Punch In</th>
+                  <th>Punch Out</th>
+                  <th>Duration</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="attendanceTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications Section -->
+      <div class="section" id="notifications">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Notifications</h2>
+            <button class="btn" onclick="sendPendingNotifications()">📧 Send Pending</button>
+          </div>
+
+          <div id="notificationsLoading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading notifications...</p>
+          </div>
+
+          <div class="table-container" id="notificationsTable" style="display: none;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Recipient</th>
+                  <th>Type</th>
+                  <th>Subject</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="notificationsTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audit Logs Section -->
+      <div class="section" id="audit">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Audit Logs</h2>
+          </div>
+
+          <div id="auditLoading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading audit logs...</p>
+          </div>
+
+          <div class="table-container" id="auditTable" style="display: none;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Action</th>
+                  <th>Entity</th>
+                  <th>Old Value</th>
+                  <th>New Value</th>
+                  <th>Admin</th>
+                </tr>
+              </thead>
+              <tbody id="auditTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Student Modal -->
+  <div class="modal" id="addStudentModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Add New Student</h3>
+        <button class="close-btn" onclick="closeModal('addStudentModal')">✕</button>
+      </div>
+      <form id="addStudentForm">
+        <div class="form-group">
+          <label>Name *</label>
+          <input type="text" name="name" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label>Phone *</label>
+            <input type="text" name="phone" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Batch *</label>
+          <select name="batchID" id="studentBatchSelect" required>
+            <option value="">Select Batch</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn">Add Student</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addStudentModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Student Modal -->
+  <div class="modal" id="editStudentModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Student</h3>
+        <button class="close-btn" onclick="closeModal('editStudentModal')">✕</button>
+      </div>
+      <form id="editStudentForm">
+        <input type="hidden" name="studentID" id="editStudentID">
+        <div class="form-group">
+          <label>Name *</label>
+          <input type="text" name="name" id="editStudentName" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" name="email" id="editStudentEmail" required>
+          </div>
+          <div class="form-group">
+            <label>Phone *</label>
+            <input type="text" name="phone" id="editStudentPhone" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Status *</label>
+          <select name="status" id="editStudentStatus" required>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn">Update Student</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('editStudentModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Move Student Modal -->
+  <div class="modal" id="moveStudentModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Move Student to Another Batch</h3>
+        <button class="close-btn" onclick="closeModal('moveStudentModal')">✕</button>
+      </div>
+      <form id="moveStudentForm">
+        <input type="hidden" name="studentID" id="moveStudentID">
+        <div class="alert alert-info">
+          <strong>Student:</strong> <span id="moveStudentName"></span><br>
+          <strong>Current Batch:</strong> <span id="moveStudentCurrentBatch"></span>
+        </div>
+        <div class="form-group">
+          <label>New Batch *</label>
+          <select name="newBatchID" id="moveStudentBatchSelect" required>
+            <option value="">Select New Batch</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn">Move Student</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('moveStudentModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Trainer Modal -->
+  <div class="modal" id="addTrainerModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Add New Trainer</h3>
+        <button class="close-btn" onclick="closeModal('addTrainerModal')">✕</button>
+      </div>
+      <form id="addTrainerForm">
+        <div class="form-group">
+          <label>Name *</label>
+          <input type="text" name="name" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label>Phone *</label>
+            <input type="text" name="phone" required>
+          </div>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn">Add Trainer</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addTrainerModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Batch Modal -->
+  <div class="modal" id="addBatchModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Create New Batch</h3>
+        <button class="close-btn" onclick="closeModal('addBatchModal')">✕</button>
+      </div>
+      <form id="addBatchForm">
+        <div class="form-group">
+          <label>Batch Name *</label>
+          <input type="text" name="name" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Trainer *</label>
+            <select name="trainerID" id="batchTrainerSelect" required>
+              <option value="">Select Trainer</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Mode *</label>
+            <select name="mode" id="batchModeSelect" required>
+              <option value="Offline">Offline</option>
+              <option value="Online">Online</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Classroom *</label>
+          <select name="classroomID" id="batchClassroomSelect" required>
+            <option value="">Select Classroom</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Timing Slot *</label>
+          <select name="timingSlotID" id="batchTimingSelect" required>
+            <option value="">Select Timing</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Start Date *</label>
+            <input type="date" name="startDate" required>
+          </div>
+          <div class="form-group">
+            <label>End Date *</label>
+            <input type="date" name="endDate" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea name="notes"></textarea>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn">Create Batch</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addBatchModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Batch Modal -->
+  <div class="modal" id="editBatchModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Batch</h3>
+        <button class="close-btn" onclick="closeModal('editBatchModal')">✕</button>
+      </div>
+      <form id="editBatchForm">
+        <input type="hidden" name="batchID" id="editBatchID">
+        <div class="form-group">
+          <label>Batch Name *</label>
+          <input type="text" name="name" id="editBatchName" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Start Date *</label>
+            <input type="date" name="startDate" id="editBatchStartDate" required>
+          </div>
+          <div class="form-group">
+            <label>End Date *</label>
+            <input type="date" name="endDate" id="editBatchEndDate" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Status *</label>
+          <select name="status" id="editBatchStatus" required>
+            <option value="Active">Active</option>
+            <option value="Completed">Completed</option>
+            <option value="Paused">Paused</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea name="notes" id="editBatchNotes"></textarea>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn">Update Batch</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('editBatchModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Change Trainer Modal -->
+  <div class="modal" id="changeTrainerModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Change Batch Trainer</h3>
+        <button class="close-btn" onclick="closeModal('changeTrainerModal')">✕</button>
+      </div>
+      <form id="changeTrainerForm">
+        <input type="hidden" name="batchID" id="changeTrainerBatchID">
+        <input type="hidden" name="oldTrainerID" id="changeTrainerOldID">
+        <div class="alert alert-info">
+          <strong>Batch:</strong> <span id="changeTrainerBatchName"></span><br>
+          <strong>Current Trainer:</strong> <span id="changeTrainerCurrentName"></span>
+        </div>
+        <div class="form-group">
+          <label>New Trainer *</label>
+          <select name="newTrainerID" id="changeTrainerSelect" required>
+            <option value="">Select Trainer</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn">Change Trainer</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('changeTrainerModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Change Classroom Modal -->
+  <div class="modal" id="changeClassroomModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Change Batch Classroom</h3>
+        <button class="close-btn" onclick="closeModal('changeClassroomModal')">✕</button>
+      </div>
+      <form id="changeClassroomForm">
+        <input type="hidden" name="batchID" id="changeClassroomBatchID">
+        <input type="hidden" name="oldClassroomID" id="changeClassroomOldID">
+        <div class="alert alert-info">
+          <strong>Batch:</strong> <span id="changeClassroomBatchName"></span><br>
+          <strong>Current Classroom:</strong> <span id="changeClassroomCurrentName"></span>
+        </div>
+        <div class="form-group">
+          <label>New Classroom *</label>
+          <select name="newClassroomID" id="changeClassroomSelect" required>
+            <option value="">Select Classroom</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn">Change Classroom</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('changeClassroomModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Merge Batch Modal -->
+  <div class="modal" id="mergeBatchModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Merge Batches</h3>
+        <button class="close-btn" onclick="closeModal('mergeBatchModal')">✕</button>
+      </div>
+      <form id="mergeBatchForm">
+        <div class="form-group">
+          <label>Select Batches to Merge *</label>
+          <div id="mergeBatchCheckboxes" style="max-height: 200px; overflow-y: auto; border: 1px solid #d1d5db; border-radius: 8px; padding: 1rem;">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>New Batch Name *</label>
+          <input type="text" name="targetBatchName" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Trainer *</label>
+            <select name="trainerID" id="mergeTrainerSelect" required>
+              <option value="">Select Trainer</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Mode *</label>
+            <select name="mode" required>
+              <option value="Offline">Offline</option>
+              <option value="Online">Online</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Classroom *</label>
+          <select name="classroomID" id="mergeClassroomSelect" required>
+            <option value="">Select Classroom</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>End Date *</label>
+          <input type="date" name="endDate" required>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn">Merge Batches</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('mergeBatchModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Split Batch Modal -->
+  <div class="modal" id="splitBatchModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Split Batch</h3>
+        <button class="close-btn" onclick="closeModal('splitBatchModal')">✕</button>
+      </div>
+      <div class="alert alert-info">
+        This feature allows you to split one batch into multiple new batches. Students will be distributed among the new batches.
+      </div>
+      <form id="splitBatchForm">
+        <div class="form-group">
+          <label>Select Batch to Split *</label>
+          <select name="sourceBatchID" id="splitSourceBatch" required>
+            <option value="">Select Batch</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Number of New Batches *</label>
+          <input type="number" name="splitCount" min="2" max="5" value="2" required onchange="generateSplitForms()">
+        </div>
+        <div id="splitFormsContainer"></div>
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn">Split Batch</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('splitBatchModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Classroom Modal -->
+  <div class="modal" id="addClassroomModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Add New Classroom</h3>
+        <button class="close-btn" onclick="closeModal('addClassroomModal')">✕</button>
+      </div>
+      <form id="addClassroomForm">
+        <div class="form-group">
+          <label>Location Name *</label>
+          <input type="text" name="locationName" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Latitude *</label>
+            <input type="number" name="latitude" step="0.0001" required>
+          </div>
+          <div class="form-group">
+            <label>Longitude *</label>
+            <input type="number" name="longitude" step="0.0001" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Geofence Radius (meters) *</label>
+          <input type="number" name="radiusMeters" value="50" required>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn">Add Classroom</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addClassroomModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Module Modal -->
+  <div class="modal" id="addModuleModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Add New Module</h3>
+        <button class="close-btn" onclick="closeModal('addModuleModal')">✕</button>
+      </div>
+      <form id="addModuleForm">
+        <div class="form-group">
+          <label>Batch *</label>
+          <select name="batchID" id="moduleBatchSelect" required>
+            <option value="">Select Batch</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Module Name *</label>
+          <input type="text" name="moduleName" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Trainer *</label>
+            <select name="trainerID" id="moduleTrainerSelect" required>
+              <option value="">Select Trainer</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tentative Completion Date</label>
+            <input type="date" name="tentativeDate">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea name="notes"></textarea>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn">Add Module</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addModuleModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Module Modal -->
+  <div class="modal" id="editModuleModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Module</h3>
+        <button class="close-btn" onclick="closeModal('editModuleModal')">✕</button>
+      </div>
+      <form id="editModuleForm">
+        <input type="hidden" name="moduleID" id="editModuleID">
+        <div class="form-group">
+          <label>Module Name *</label>
+          <input type="text" name="moduleName" id="editModuleName" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Status *</label>
+            <select name="status" id="editModuleStatus" required>
+              <option value="PENDING">Pending</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="COMPLETED">Completed</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tentative Date</label>
+            <input type="date" name="tentativeDate" id="editModuleTentativeDate">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea name="notes" id="editModuleNotes"></textarea>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn">Update Module</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('editModuleModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Timing Slot Modal -->
+  <div class="modal" id="addTimingModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Timing Slot</h3>
+        <button class="close-btn" onclick="closeModal('addTimingModal')">✕</button>
+      </div>
+      <form id="addTimingForm">
+        <div class="form-group">
+          <label>Slot Label *</label>
+          <input type="text" name="label" placeholder="e.g., Morning Offline Batch" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Start Time *</label>
+            <input type="time" name="startTime" required>
+          </div>
+          <div class="form-group">
+            <label>End Time *</label>
+            <input type="time" name="endTime" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Mode *</label>
+          <select name="mode" required>
+            <option value="Offline">Offline</option>
+            <option value="Online">Online</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn">Add Timing Slot</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addTimingModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbw4pJXkrMKl_bAPC6DObaaKOuJzD8pdKcVJcx8FwYznqcnT-wO7cakZNuD9u0cAW3A/exec'; // Replace with deployed URL
+    const ADMIN_SECRET_KEY = 'DA360_ADMIN_SECRET_2025'; // Must match backend
+    let adminEmail = '';
+    let allStudents = [];
+    let allBatches = [];
+    let allTrainers = [];
+    let allClassrooms = [];
+    let allModules = [];
+    let currentModuleFilter = 'ALL';
+
+    // API Call
+    async function apiCall(action, params) {
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action,
+            adminKey: ADMIN_SECRET_KEY,
+            adminEmail: adminEmail,
+            ...params
+          })
+        });
+        return await response.json();
+      } catch (error) {
+        console.error('API Error:', error);
+        return { success: false, message: 'Network error. Please check connection.' };
+      }
+    }
+
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const key = document.getElementById('adminKey').value;
+      const email = document.getElementById('adminEmail').value;
+
+      if (key !== ADMIN_SECRET_KEY) {
+        showAlert('loginAlert', 'Invalid admin secret key', 'error');
+        return;
+      }
+
+      adminEmail = email;
+      localStorage.setItem('da360_admin', email);
+      showDashboardScreen();
+      loadDashboard();
+    });
+
+    // Check saved session
+    window.addEventListener('load', () => {
+      const saved = localStorage.getItem('da360_admin');
+      if (saved) {
+        adminEmail = saved;
+        showDashboardScreen();
+        loadDashboard();
+      }
+    });
+
+    function showDashboardScreen() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboardScreen').style.display = 'block';
+      document.getElementById('adminName').textContent = adminEmail;
+    }
+
+    function logout() {
+      localStorage.removeItem('da360_admin');
+      location.reload();
+    }
+
+    // Navigation
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      
+      document.getElementById(sectionId).classList.add('active');
+      event.target.classList.add('active');
+
+      // Load data for section
+      switch(sectionId) {
+        case 'dashboard':
+          loadDashboard();
+          break;
+        case 'students':
+          loadStudents();
+          break;
+        case 'trainers':
+          loadTrainers();
+          break;
+        case 'batches':
+          loadBatches();
+          break;
+        case 'classrooms':
+          loadClassrooms();
+          break;
+        case 'modules':
+          loadModules();
+          break;
+        case 'timings':
+          loadTimingSlots();
+          break;
+        case 'notifications':
+          loadNotifications();
+          break;
+        case 'audit':
+          loadAuditLogs();
+          break;
+      }
+    }
+
+    // Dashboard
+    async function loadDashboard() {
+      const [studentsRes, batchesRes] = await Promise.all([
+        apiCall('adminGetAllStudents'),
+        apiCall('adminGetAllBatches')
+      ]);
+
+      if (studentsRes.success) {
+        const activeStudents = studentsRes.data.students.filter(s => s.status === 'Active');
+        document.getElementById('totalStudents').textContent = activeStudents.length;
+      }
+
+      if (batchesRes.success) {
+        allBatches = batchesRes.data.batches;
+        const activeBatches = allBatches.filter(b => b.status === 'Active');
+        document.getElementById('activeBatches').textContent = activeBatches.length;
+
+        // Count trainers
+        const trainerSet = new Set(allBatches.map(b => b.trainerID));
+        document.getElementById('totalTrainers').textContent = trainerSet.size;
+
+        // Count completed modules
+        let totalCompleted = 0;
+        allBatches.forEach(b => totalCompleted += b.completedModules);
+        document.getElementById('completedModules').textContent = totalCompleted;
+
+        // Populate dashboard table
+        const tbody = document.getElementById('dashboardBatchesBody');
+        tbody.innerHTML = '';
+        activeBatches.forEach(batch => {
+          const progress = batch.totalModules > 0 
+            ? Math.round((batch.completedModules / batch.totalModules) * 100) 
+            : 0;
+          
+          tbody.innerHTML += `
+            <tr>
+              <td>${batch.batchID}</td>
+              <td>${batch.name}</td>
+              <td>${batch.trainerID}</td>
+              <td>${batch.studentCount}</td>
+              <td>${batch.completedModules}/${batch.totalModules}</td>
+              <td>
+                <div style="background: #e5e7eb; border-radius: 8px; height: 8px; overflow: hidden;">
+                  <div style="background: #dc2626; height: 100%; width: ${progress}%;"></div>
+                </div>
+                <span style="font-size: 0.875rem; color: #6b7280;">${progress}%</span>
+              </td>
+            </tr>
+          `;
+        });
+      }
+    }
+
+    // Students Management
+    async function loadStudents() {
+      document.getElementById('studentsLoading').style.display = 'block';
+      document.getElementById('studentsTable').style.display = 'none';
+
+      const result = await apiCall('adminGetAllStudents');
+
+      if (result.success) {
+        allStudents = result.data.students;
+        renderStudents(allStudents);
+        populateBatchFilters();
+        document.getElementById('studentsLoading').style.display = 'none';
+        document.getElementById('studentsTable').style.display = 'block';
+      }
+    }
+
+    function renderStudents(students) {
+      const tbody = document.getElementById('studentsTableBody');
+      tbody.innerHTML = '';
+
+      students.forEach(student => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${student.studentID}</td>
+            <td>${student.name}</td>
+            <td>${student.email}</td>
+            <td>${student.phone}</td>
+            <td>${student.batchID}</td>
+            <td><span class="badge badge-${student.status.toLowerCase()}">${student.status}</span></td>
+            <td>
+              <div class="action-buttons">
+                <button class="icon-btn" onclick='editStudent(${JSON.stringify(student)})' title="Edit">✏️</button>
+                <button class="icon-btn" onclick='moveStudent(${JSON.stringify(student)})' title="Move">↔️</button>
+                <button class="icon-btn" onclick="overrideDevice('${student.studentID}')" title="Reset Device">🔓</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function filterStudents() {
+      const search = document.getElementById('studentSearch').value.toLowerCase();
+      const batchFilter = document.getElementById('studentBatchFilter').value;
+
+      let filtered = allStudents.filter(s => {
+        const matchSearch = s.name.toLowerCase().includes(search) || 
+                           s.studentID.toLowerCase().includes(search) ||
+                           s.email.toLowerCase().includes(search);
+        const matchBatch = !batchFilter || s.batchID === batchFilter;
+        return matchSearch && matchBatch;
+      });
+
+      renderStudents(filtered);
+    }
+
+    function populateBatchFilters() {
+      const selects = [
+        document.getElementById('studentBatchFilter'),
+        document.getElementById('studentBatchSelect'),
+        document.getElementById('moveStudentBatchSelect'),
+        document.getElementById('moduleBatchSelect'),
+        document.getElementById('attendanceBatchFilter')
+      ];
+
+      selects.forEach(select => {
+        if (select) {
+          const currentValue = select.value;
+          select.innerHTML = select.id.includes('Filter') ? '<option value="">All Batches</option>' : '<option value="">Select Batch</option>';
+          allBatches.forEach(batch => {
+            select.innerHTML += `<option value="${batch.batchID}">${batch.name} (${batch.batchID})</option>`;
+          });
+          select.value = currentValue;
+        }
+      });
+    }
+
+    // Add Student
+    function openAddStudentModal() {
+      populateBatchFilters();
+      document.getElementById('addStudentModal').classList.add('active');
+    }
+
+    document.getElementById('addStudentForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+
+      const result = await apiCall('adminAddStudent', data);
+
+      if (result.success) {
+        alert('Student added successfully! Student ID: ' + result.data.studentID);
+        closeModal('addStudentModal');
+        e.target.reset();
+        loadStudents();
+      } else {
+        alert('Error: ' + result.message);
+      }
+    });
+
+    // Edit Student
+    function editStudent(student) {
+      document.getElementById('editStudentID').value = student.studentID;
+      document.getElementById('editStudentName').value = student.name;
+      document.getElementById('editStudentEmail').value = student.email;
+      document.getElementById('editStudentPhone').value = student.phone;
+      document.getElementById('editStudentStatus').value = student.status;
+      document.getElementById('editStudentModal').classList.add('active');
+    }
+
+    document.getElementById('editStudentForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+
+      const result = await apiCall('adminUpdateStudent', data);
+
+      if (result.success) {
+        alert('Student updated successfully!');
+        closeModal('editStudentModal');
+        loadStudents();
+      } else {
+        alert('Error: ' + result.message);
+      }
+    });
+
+    // Move Student
+    function moveStudent(student) {
+      document.getElementById('moveStudentID').value = student.studentID;
+      document.getElementById('moveStudentName').textContent = student.name;
+      document.getElementById('moveStudentCurrentBatch').textContent = student.batchID;
+      populateBatchFilters();
+      document.getElementById('moveStudentModal').classList.add('active');
+    }
+
+    document.getElementById('moveStudentForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+
+      if (confirm('Are you sure you want to move this student to another batch?')) {
+        const result = await apiCall('adminMoveStudent', data);
+
+        if (result.success) {
+          alert('Student moved successfully!');
+          closeModal('moveStudentModal');
+          loadStudents();
+        } else {
+          alert('Error: ' + result.message);
+        }
+      }
+    });
+
+    // Override Device
+    async function overrideDevice(studentID) {
+      if (confirm('Reset device binding for this student? They will be able to login from a new device.')) {
+        const result = await apiCall('adminOverrideDevice', { studentID });
+        
+        if (result.success) {
+          alert('Device binding reset successfully!');
+        } else {
+          alert('Error: ' + result.message);
+        }
+      }
+    }
+
+    // Trainers Management
+    async function loadTrainers() {
+      document.getElementById('trainersLoading').style.display = 'block';
+      document.getElementById('trainersTable').style.display = 'none';
+
+      const result = await apiCall('adminGetAllTrainers');
+
+      if (result.success) {
+        allTrainers = result.data.trainers || [];
+        renderTrainers(allTrainers);
+        populateTrainerSelects();
+        document.getElementById('trainersLoading').style.display = 'none';
+        document.getElementById('trainersTable').style.display = 'block';
+      }
+    }
+
+    function renderTrainers(trainers) {
+      const tbody = document.getElementById('trainersTableBody');
+      tbody.innerHTML = '';
+
+      trainers.forEach(trainer => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${trainer.trainerID}</td>
+            <td>${trainer.name}</td>
+            <td>${trainer.email}</td>
+            <td>${trainer.phone}</td>
+            <td><span class="badge badge-${trainer.status.toLowerCase()}">${trainer.status}</span></td>
+            <td>
+              <button class="icon-btn" onclick='editTrainer(${JSON.stringify(trainer)})' title="Edit">✏️</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function populateTrainerSelects() {
+      const selects = [
+        document.getElementById('batchTrainerSelect'),
+        document.getElementById('moduleTrainerSelect'),
+        document.getElementById('changeTrainerSelect'),
+        document.getElementById('mergeTrainerSelect')
+      ];
+
+      selects.forEach(select => {
+        if (select) {
+          select.innerHTML = '<option value="">Select Trainer</option>';
+          allTrainers.forEach(trainer => {
+            select.innerHTML += `<option value="${trainer.trainerID}">${trainer.name} (${trainer.trainerID})</option>`;
+          });
+        }
+      });
+    }
+
+    // Add Trainer
+    function openAddTrainerModal() {
+      document.getElementById('addTrainerModal').classList.add('active');
+    }
+
+    document.getElementById('addTrainerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+
+      const result = await apiCall('adminAddTrainer', data);
+
+      if (result.success) {
+        alert('Trainer added successfully! Trainer ID: ' + result.data.trainerID);
+        closeModal('addTrainerModal');
+        e.target.reset();
+        loadTrainers();
+      } else {
+        alert('Error: ' + result.message);
+      }
+    });
+
+    // Batches Management
+    async function loadBatches() {
+      document.getElementById('batchesLoading').style.display = 'block';
+      document.getElementById('batchesTable').style.display = 'none';
+
+      const result = await apiCall('adminGetAllBatches');
+
+      if (result.success) {
+        allBatches = result.data.batches;
+        renderBatches(allBatches);
+        document.getElementById('batchesLoading').style.display = 'none';
+        document.getElementById('batchesTable').style.display = 'block';
+      }
+    }
+
+    function renderBatches(batches) {
+      const tbody = document.getElementById('batchesTableBody');
+      tbody.innerHTML = '';
+
+      batches.forEach(batch => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${batch.batchID}</td>
+            <td>${batch.name}</td>
+            <td>${batch.trainerID}</td>
+            <td>${batch.classroomID}</td>
+            <td><span class="badge badge-${batch.mode.toLowerCase()}">${batch.mode}</span></td>
+            <td>${batch.studentCount}</td>
+            <td><span class="badge badge-${batch.status.toLowerCase()}">${batch.status}</span></td>
+            <td>
+              <div class="action-buttons">
+                <button class="icon-btn" onclick='editBatch(${JSON.stringify(batch)})' title="Edit">✏️</button>
+                <button class="icon-btn" onclick='changeTrainer(${JSON.stringify(batch)})' title="Change Trainer">👨‍🏫</button>
+                <button class="icon-btn" onclick='changeClassroom(${JSON.stringify(batch)})' title="Change Classroom">🏫</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    // Add Batch
+    function openAddBatchModal() {
+      populateTrainerSelects();
+      populateClassroomSelects();
+      populateTimingSelects();
+      document.getElementById('addBatchModal').classList.add('active');
+    }
+
+    document.getElementById('addBatchForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+
+      const result = await apiCall('adminAddBatch', data);
+
+      if (result.success) {
+        alert('Batch created successfully! Batch ID: ' + result.data.batchID);
+        closeModal('addBatchModal');
+        e.target.reset();
+        loadBatches();
+        loadDashboard();
+      } else {
+        alert('Error: ' + result.message);
+      }
+    });
+
+    // Edit Batch
+    function editBatch(batch) {
+      document.getElementById('editBatchID').value = batch.batchID;
+      document.getElementById('editBatchName').value = batch.name;
+      document.getElementById('editBatchStartDate').value = batch.startDate;
+      document.getElementById('editBatchEndDate').value = batch.endDate;
+      document.getElementById('editBatchStatus').value = batch.status;
+      document.getElementById('editBatchNotes').value = batch.notes || '';
+      document.getElementById('editBatchModal').classList.add('active');
+    }
+
+    document.getElementById('editBatchForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+
+      const result = await apiCall('adminUpdateBatch', data);
+
+      if (result.success) {
+        alert('Batch updated successfully!');
+        closeModal('editBatchModal');
+        loadBatches();
+      } else {
+        alert('Error: ' + result.message);
+      }
+    });
+
+    // Change Trainer
+    function changeTrainer(batch) {
+      document.getElementById('changeTrainerBatchID').value = batch.batchID;
+      document.getElementById('changeTrainerOldID').value = batch.trainerID;
+      document.getElementById('changeTrainerBatchName').textContent = batch.name;
+      document.getElementById('changeTrainerCurrentName').textContent = batch.trainerID;
+      populateTrainerSelects();
+      document.getElementById('changeTrainerModal').classList.add('active');
+    }
+
+    document.getElementById('changeTrainerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+
+      if (confirm('Change trainer for this batch? All students and trainer will be notified.')) {
+        const result = await apiCall('adminChangeTrainer', data);
+
+        if (result.success) {
+          alert('Trainer changed successfully!');
+          closeModal('changeTrainerModal');
+          loadBatches();
+        } else {
+          alert('Error: ' + result.message);
+        }
+      }
+    });
+
+    // Change Classroom
+    function changeClassroom(batch) {
+      document.getElementById('changeClassroomBatchID').value = batch.batchID;
+      document.getElementById('changeClassroomOldID').value = batch.classroomID;
+      document.getElementById('changeClassroomBatchName').textContent = batch.name;
+      document.getElementById('changeClassroomCurrentName').textContent = batch.classroomID;
+      populateClassroomSelects();
+      document.getElementById('changeClassroomModal').classList.add('active');
+    }
+
+    document.getElementById('changeClassroomForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+
+      if (confirm('Change classroom for this batch? All students will be notified.')) {
+        const result = await apiCall('adminChangeClassroom', data);
+
+        if (result.success) {
+          alert('Classroom changed successfully!');
+          closeModal('changeClassroomModal');
+          loadBatches();
+        } else {
+          alert('Error: ' + result.message);
+        }
+      }
+    });
+
+    // Merge Batches
+    function openMergeBatchModal() {
+      const container = document.getElementById('mergeBatchCheckboxes');
+      container.innerHTML = '';
+      
+      allBatches.filter(b => b.status === 'Active').forEach(batch => {
+        container.innerHTML += `
+          <div style="padding: 0.5rem 0;">
+            <label style="display: flex; align-items: center; cursor: pointer;">
+              <input type="checkbox" name="sourceBatches" value="${batch.batchID}" style="width: auto; margin-right: 0.5rem;">
+              ${batch.name} (${batch.batchID}) - ${batch.studentCount} students
+            </label>
+          </div>
+        `;
+      });
+
+      populateTrainerSelects();
+      populateClassroomSelects();
+      document.getElementById('mergeBatchModal').classList.add('active');
+    }
+
+    document.getElementById('mergeBatchForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      
+      const sourceBatchIDs = [];
+      document.querySelectorAll('input[name="sourceBatches"]:checked').forEach(cb => {
+        sourceBatchIDs.push(cb.value);
+      });
+
+      if (sourceBatchIDs.length < 2) {
+        alert('Please select at least 2 batches to merge');
+        return;
+      }
+
+      if (confirm(`Merge ${sourceBatchIDs.length} batches? This action cannot be undone.`)) {
+        const result = await apiCall('adminMergeBatch', {
+          sourceBatchIDs: sourceBatchIDs,
+          targetBatchName: formData.get('targetBatchName'),
+          trainerID: formData.get('trainerID'),
+          classroomID: formData.get('classroomID'),
+          mode: formData.get('mode'),
+          endDate: formData.get('endDate')
+        });
+
+        if (result.success) {
+          alert(`Batches merged successfully! New Batch ID: ${result.data.targetBatchID}`);
+          closeModal('mergeBatchModal');
+          loadBatches();
+          loadStudents();
+        } else {
+          alert('Error: ' + result.message);
+        }
+      }
+    });
+
+    // Split Batch
+    function openSplitBatchModal() {
+      const select = document.getElementById('splitSourceBatch');
+      select.innerHTML = '<option value="">Select Batch</option>';
+      allBatches.filter(b => b.status === 'Active').forEach(batch => {
+        select.innerHTML += `<option value="${batch.batchID}">${batch.name} (${batch.studentCount} students)</option>`;
+      });
+      document.getElementById('splitBatchModal').classList.add('active');
+    }
+
+    function generateSplitForms() {
+      const count = parseInt(document.querySelector('input[name="splitCount"]').value);
+      const container = document.getElementById('splitFormsContainer');
+      container.innerHTML = '';
+
+      for (let i = 1; i <= count; i++) {
+        container.innerHTML += `
+          <div class="card" style="margin-top: 1rem;">
+            <h4>New Batch ${i}</h4>
+            <div class="form-group">
+              <label>Batch Name *</label>
+              <input type="text" name="split_${i}_name" required>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Trainer *</label>
+                <select name="split_${i}_trainer" required>
+                  <option value="">Select Trainer</option>
+                  ${allTrainers.map(t => `<option value="${t.trainerID}">${t.name}</option>`).join('')}
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Classroom *</label>
+                <select name="split_${i}_classroom" required>
+                  <option value="">Select Classroom</option>
+                  ${allClassrooms.map(c => `<option value="${c.classroomID}">${c.locationName}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // Classrooms Management
+    async function loadClassrooms() {
+      document.getElementById('classroomsLoading').style.display = 'block';
+      document.getElementById('classroomsTable').style.display = 'none';
+
+      const result = await apiCall('adminGetAllClassrooms');
+
+      if (result.success) {
+        allClassrooms = result.data.classrooms || [];
+        renderClassrooms(allClassrooms);
+        populateClassroomSelects();
+        document.getElementById('classroomsLoading').style.display = 'none';
+        document.getElementById('classroomsTable').style.display = 'block';
+      }
+    }
+
+    function renderClassrooms(classrooms) {
+      const tbody = document.getElementById('classroomsTableBody');
+      tbody.innerHTML = '';
+
+      classrooms.forEach(classroom => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${classroom.classroomID}</td>
+            <td>${classroom.locationName}</td>
+            <td>${classroom.latitude}</td>
+            <td>${classroom.longitude}</td>
+            <td>${classroom.radiusMeters}m</td>
+            <td><span class="badge badge-${classroom.active ? 'active' : 'inactive'}">${classroom.active}</span></td>
+            <td>
+              <button class="icon-btn" title="Edit">✏️</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function populateClassroomSelects() {
+      const selects = [
+        document.getElementById('batchClassroomSelect'),
+        document.getElementById('changeClassroomSelect'),
+        document.getElementById('mergeClassroomSelect')
+      ];
+
+      selects.forEach(select => {
+        if (select) {
+          select.innerHTML = '<option value="">Select Classroom</option>';
+          select.innerHTML += '<option value="ONLINE">ONLINE</option>';
+          allClassrooms.forEach(classroom => {
+            select.innerHTML += `<option value="${classroom.classroomID}">${classroom.locationName}</option>`;
+          });
+        }
+      });
+    }
+
+    // Add Classroom
+    function openAddClassroomModal() {
+      document.getElementById('addClassroomModal').classList.add('active');
+    }
+
+    document.getElementById('addClassroomForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+
+      const result = await apiCall('adminAddClassroom', data);
+
+      if (result.success) {
+        alert('Classroom added successfully!');
+        closeModal('addClassroomModal');
+        e.target.reset();
+        loadClassrooms();
+      } else {
+        alert('Error: ' + result.message);
+      }
+    });
+
+    // Modules Management
+    async function loadModules() {
+      document.getElementById('modulesLoading').style.display = 'block';
+      document.getElementById('modulesTable').style.display = 'none';
+
+      const result = await apiCall('adminGetAllModules');
+
+      if (result.success) {
+        allModules = result.data.modules || [];
+        filterModules(currentModuleFilter);
+        document.getElementById('modulesLoading').style.display = 'none';
+        document.getElementById('modulesTable').style.display = 'block';
+      }
+    }
+
+    function filterModules(status) {
+      currentModuleFilter = status;
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const filtered = status === 'ALL' 
+        ? allModules 
+        : allModules.filter(m => m.status === status);
+
+      renderModules(filtered);
+    }
+
+    function renderModules(modules) {
+      const tbody = document.getElementById('modulesTableBody');
+      tbody.innerHTML = '';
+
+      modules.forEach(module => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${module.moduleID}</td>
+            <td>${module.batchID}</td>
+            <td>${module.moduleName}</td>
+            <td><span class="badge badge-${module.status.toLowerCase().replace('_', '-')}">${module.status}</span></td>
+            <td>${module.tentativeDate || '-'}</td>
+            <td>${module.actualDate || '-'}</td>
+            <td>${module.trainerID}</td>
+            <td>
+              <button class="icon-btn" onclick='editModule(${JSON.stringify(module)})' title="Edit">✏️</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    // Add Module
+    function openAddModuleModal() {
+      populateBatchFilters();
+      populateTrainerSelects();
+      document.getElementById('addModuleModal').classList.add('active');
+    }
+
+    document.getElementById('addModuleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+
+      const result = await apiCall('adminAddModule', data);
+
+      if (result.success) {
+        alert('Module added successfully!');
+        closeModal('addModuleModal');
+        e.target.reset();
+        loadModules();
+      } else {
+        alert('Error: ' + result.message);
+      }
+    });
+
+    // Edit Module
+    function editModule(module) {
+      document.getElementById('editModuleID').value = module.moduleID;
+      document.getElementById('editModuleName').value = module.moduleName;
+      document.getElementById('editModuleStatus').value = module.status;
+      document.getElementById('editModuleTentativeDate').value = module.tentativeDate || '';
+      document.getElementById('editModuleNotes').value = module.notes || '';
+      document.getElementById('editModuleModal').classList.add('active');
+    }
+
+    document.getElementById('editModuleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+
+      const result = await apiCall('adminUpdateModule', data);
+
+      if (result.success) {
+        alert('Module updated successfully!');
+        closeModal('editModuleModal');
+        loadModules();
+      } else {
+        alert('Error: ' + result.message);
+      }
+    });
+
+    // Timing Slots
+    async function loadTimingSlots() {
+      document.getElementById('timingsLoading').style.display = 'block';
+      document.getElementById('timingsTable').style.display = 'none';
+
+      const result = await apiCall('adminGetTimingSlots');
+
+      if (result.success) {
+        const tbody = document.getElementById('timingsTableBody');
+        tbody.innerHTML = '';
+
+        result.data.slots.forEach(slot => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${slot.timingSlotID}</td>
+              <td>${slot.label}</td>
+              <td>${slot.startTime}</td>
+              <td>${slot.endTime}</td>
+              <td><span class="badge badge-${slot.mode.toLowerCase()}">${slot.mode}</span></td>
+              <td>${slot.createdBy}</td>
+            </tr>
+          `;
+        });
+
+        document.getElementById('timingsLoading').style.display = 'none';
+        document.getElementById('timingsTable').style.display = 'block';
+      }
+    }
+
+    function populateTimingSelects() {
+      // Would load from API in real implementation
+    }
+
+    // Add Timing Slot
+    function openAddTimingModal() {
+      document.getElementById('addTimingModal').classList.add('active');
+    }
+
+    document.getElementById('addTimingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+
+      const result = await apiCall('adminAddTimingSlot', data);
+
+      if (result.success) {
+        alert('Timing slot added successfully!');
+        closeModal('addTimingModal');
+        e.target.reset();
+        loadTimingSlots();
+      } else {
+        alert('Error: ' + result.message);
+      }
+    });
+
+    // Attendance Reports
+    async function loadAttendanceReport() {
+      document.getElementById('attendanceLoading').style.display = 'block';
+      document.getElementById('attendanceTable').style.display = 'none';
+
+      const batchID = document.getElementById('attendanceBatchFilter').value;
+      const date = document.getElementById('attendanceDateFilter').value;
+
+      const result = await apiCall('adminGetAttendanceReport', {
+        batchID: batchID,
+        startDate: date,
+        endDate: date
+      });
+
+      if (result.success) {
+        const tbody = document.getElementById('attendanceTableBody');
+        tbody.innerHTML = '';
+
+        result.data.report.forEach(record => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${record.date}</td>
+              <td>${record.studentID}</td>
+              <td>${record.batchID}</td>
+              <td>${record.punchIn || '-'}</td>
+              <td>${record.punchOut || '-'}</td>
+              <td>${record.duration || 0} min</td>
+              <td><span class="badge badge-${record.status.toLowerCase().replace('_', '-')}">${record.status}</span></td>
+            </tr>
+          `;
+        });
+
+        document.getElementById('attendanceLoading').style.display = 'none';
+        document.getElementById('attendanceTable').style.display = 'block';
+      }
+    }
+
+    function exportAttendance() {
+      alert('Export functionality: Generate CSV from attendance data');
+    }
+
+    // Notifications
+    async function loadNotifications() {
+      // Implementation for loading notifications
+    }
+
+    async function sendPendingNotifications() {
+      if (confirm('Send all pending email notifications?')) {
+        const result = await apiCall('sendNotifications');
+        if (result.success) {
+          alert(result.message);
+          loadNotifications();
+        } else {
+          alert('Error: ' + result.message);
+        }
+      }
+    }
+
+    // Audit Logs
+    async function loadAuditLogs() {
+      // Implementation for loading audit logs
+    }
+
+    // Modal Management
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    function showAlert(containerId, message, type) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+      setTimeout(() => container.innerHTML = '', 5000);
+    }
+
+    // Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+  </script>
+</body>
+</html>
